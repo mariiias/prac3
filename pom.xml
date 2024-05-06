@@ -30,7 +30,7 @@
                 <version>0.0.8</version>
                 <configuration>
                     <executable>${java.home}/bin/java</executable>
-                    <mainClass>es.uji.al426183.MyFXApp</mainClass>
+                    <mainClass>es.uji.al426183.vista.MyFXApp</mainClass>
                 </configuration>
             </plugin>
         </plugins>
