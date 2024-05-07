@@ -12,6 +12,12 @@ import javafx.scene.layout.*;
 import javafx.scene.control.*;
 import javafx.scene.Scene;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
 public class MyFXApp extends Application {
 
     public static void main(String[] args) {
@@ -22,10 +28,10 @@ public class MyFXApp extends Application {
         StackPane root = new StackPane();
 
         primaryStage.setTitle("Song Recommender");
-        StackPane root = new StackPane();
-        Label label = new Label("Recommendation Type");
-        label.setPadding(new Insets(10, 5, 5, 5));
 
+        Label recomendationTitle = new Label("Recommendation Type");
+        recomendationTitle.setFont(new Font(15));
+        recomendationTitle.setPadding(new Insets(0, 0, 5, 5));
 
         ToggleGroup grupo = new ToggleGroup();
         RadioButton feat = new RadioButton("Recommend based on song features");
@@ -49,12 +55,45 @@ public class MyFXApp extends Application {
 
 
 
-        VBox b = new VBox(label,feat,gen,dist, eu, man);
-        b.setPadding(new Insets(10));
-        root.getChildren().add(b);
+        VBox distBox = new VBox(distTitle, eu, man);
+        distBox.setPadding(new Insets(0,10,10,10));
+
+        Label songTitles = new Label("Song Titles");
+        songTitles.setFont(new Font(18));
+
+        String separator = System.getProperty( "file.separator" );
+        ObservableList<String> canciones = readNames("src"+separator+"test"+separator+"songs_files"+separator+"songs_test_names.csv");
+        ListView lista = new ListView<>(canciones);
+
+        VBox songBox = new VBox(songTitles, lista);
+        songBox.setPadding(new Insets(0, 10, 10,10));
+
+        Button botonRecom = new Button("Recommend");
+        HBox hBox = new HBox(botonRecom);
+        hBox.setPadding(new Insets(0, 10, 30, 10));
+
+        botonRecom.setDisable(true);
+
+        VBox vboxFinal = new VBox(recomBox, distBox, songBox, hBox);
+
+        root.getChildren().add(vboxFinal);
 
         primaryStage.setScene(new Scene(root, 250, 600));
         primaryStage.show();
+
+    }
+
+    private ObservableList<String> readNames(String fileOfItemNames) throws IOException {
+        BufferedReader br = new BufferedReader(new FileReader(fileOfItemNames));
+        String line;
+        List<String> names = new ArrayList<>();
+
+        while ((line = br.readLine()) != null) {
+            names.add(line);
+        }
+        br.close();
+        ObservableList<String> listaObservable = FXCollections.observableArrayList(names);
+        return listaObservable;
     }
 }
 

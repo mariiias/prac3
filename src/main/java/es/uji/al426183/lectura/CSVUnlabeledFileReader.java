@@ -4,6 +4,7 @@ import es.uji.al426183.almacenar.table.Table;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -14,7 +15,7 @@ public class CSVUnlabeledFileReader extends ReaderTemplate {
     List<String> datosString;
 
     @Override
-    protected void openSource(String source) throws FileNotFoundException {
+    protected void openSource(String source) throws IOException {
         entrada = new Scanner(new File(source));
     }
 
