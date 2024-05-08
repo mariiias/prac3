@@ -25,7 +25,10 @@ public  class ImplementacionVista{
     private Controlador controlador;
     private InterrogaModelo modelo;
     private ListView<String> listaCanciones;
-
+    private boolean algoritmoSeleccionado = false;
+    private boolean distanciaSeleccionada = false;
+    private boolean cancionSeleccionada = false;
+    Button botonRecom;
     public ImplementacionVista(Stage stage) {
         this.stage = stage;
     }
@@ -54,6 +57,11 @@ public  class ImplementacionVista{
         VBox recomBox = new VBox(recomendationTitle,feat,gen);
         recomBox.setPadding(new Insets(0,10,10,10));
 
+        grupo.selectedToggleProperty().addListener((obs, oldVal, newVal) -> {
+            algoritmoSeleccionado = newVal != null;
+            verificarEstado();
+        });
+
         //DISTANCIA
         Label distTitle = new Label("Distance Type");
         distTitle.setFont(Font.font("System", FontWeight.LIGHT,15));
@@ -69,6 +77,11 @@ public  class ImplementacionVista{
 
         VBox distBox = new VBox(distTitle, eu, man);
         distBox.setPadding(new Insets(0,10,10,10));
+
+        grupDist.selectedToggleProperty().addListener((obs, oldVal, newVal) -> {
+            distanciaSeleccionada = newVal != null;
+            verificarEstado();
+        });
 
 
         //LISTA CANCIONES
@@ -86,11 +99,15 @@ public  class ImplementacionVista{
         VBox songBox = new VBox(songTitles, listaCanciones);
         songBox.setPadding(new Insets(0, 10, 10,10));
 
-        Button botonRecom = new Button("Recommend");
+        listaCanciones.setOnMouseClicked(event -> {
+            cancionSeleccionada = !listaCanciones.getSelectionModel().isEmpty();
+            verificarEstado();
+        });
+
+        botonRecom = new Button("Recommend");
+        botonRecom.setDisable(true);
         HBox hBox = new HBox(botonRecom);
-        //botonRecom.setDisable(true);
         hBox.setPadding(new Insets(0, 10, 30, 10));
-        listaCanciones.setOnMouseClicked(event -> botonRecom.setDisable(false));
         listaCanciones.setOnMouseClicked(event -> {
             botonRecom.setText("Recommend on "+ listaCanciones.getSelectionModel().getSelectedItems().get(0) + "...");
         });
@@ -136,6 +153,14 @@ public  class ImplementacionVista{
         Scene scene = new Scene(mainLayout, 350, 300);
         gui2.setScene(scene);
         gui2.show();
+    }
+
+    private void verificarEstado() {
+        if (algoritmoSeleccionado && distanciaSeleccionada && cancionSeleccionada) {
+            botonRecom.setDisable(false);
+        } else {
+            botonRecom.setDisable(true);
+        }
     }
 
 
