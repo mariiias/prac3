@@ -1,11 +1,15 @@
 package es.uji.al426183.mvc.controlador;
 
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
+import es.uji.al426183.mvc.modelo.CambioModelo;
+import es.uji.al426183.mvc.vista.InterrogaVista;
 
-public class ImplementacionControlador implements EventHandler<ActionEvent> {
-    @Override
-    public void handle(ActionEvent e) {
-        System.out.println("Me pulsaste");
-    }
+public class ImplementacionControlador {
+    private InterrogaVista vista;
+    private CambioModelo modelo;
+
+    public ImplementacionControlador() {}
+
+
+
+
 }
