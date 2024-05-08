@@ -42,7 +42,7 @@
                 <version>0.0.8</version>
                 <configuration>
                     <executable>${java.home}/bin/java</executable>
-                    <mainClass>es.uji.al426183.mvc.vista.Vista</mainClass>
+                    <mainClass>es.uji.al426183.mvc.principal.Principal</mainClass>
                 </configuration>
             </plugin>
         </plugins>

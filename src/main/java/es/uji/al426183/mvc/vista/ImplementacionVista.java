@@ -99,11 +99,13 @@ public  class ImplementacionVista{
         VBox songBox = new VBox(songTitles, listaCanciones);
         songBox.setPadding(new Insets(0, 10, 10,10));
 
-        listaCanciones.setOnMouseClicked(event -> {
-            cancionSeleccionada = !listaCanciones.getSelectionModel().isEmpty();
+        listaCanciones.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            cancionSeleccionada = newValue != null;
             verificarEstado();
         });
 
+
+        //BOTON RECOMMEND
         botonRecom = new Button("Recommend");
         botonRecom.setDisable(true);
         HBox hBox = new HBox(botonRecom);
