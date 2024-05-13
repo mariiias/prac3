@@ -14,6 +14,7 @@ public class KNN implements Algorithm<TableWithLabels, Integer, List<Double>> {
     public KNN (Distance distance){
         this.distance=distance;
     }
+
     public void train(TableWithLabels datos){
         this.data = datos;
     }

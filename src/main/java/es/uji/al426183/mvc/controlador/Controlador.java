@@ -1,12 +1,9 @@
 package es.uji.al426183.mvc.controlador;
 
-public interface Controlador {
+import es.uji.al426183.algorithm.KMayorQueNException;
 
-    //solo tiene que estar recomendar(), no he eliminado las demas porque
-    //no me ha dado tiempo a cambiar la vista y si las borro no funciona.
-    void euclidean();
-    void manhattan();
-    void KNN();
-    void KMeans();
-    void recomendar();
+import java.io.IOException;
+
+public interface Controlador {
+    void recomendar() throws KMayorQueNException, IOException;
 }

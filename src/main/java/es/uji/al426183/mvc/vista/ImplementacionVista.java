@@ -19,8 +19,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static javafx.scene.text.Font.font;
+
 //Tiene que implementar InformaVista e InterrogaVista pero para probarlo lo he quetado porque no he implementado los metodos
-public  class ImplementacionVista{
+public  class ImplementacionVista implements InterrogaVista{
     private final Stage stage;
     private Controlador controlador;
     private InterrogaModelo modelo;
@@ -28,7 +30,11 @@ public  class ImplementacionVista{
     private boolean algoritmoSeleccionado = false;
     private boolean distanciaSeleccionada = false;
     private boolean cancionSeleccionada = false;
-    Button botonRecom;
+    private Button botonRecom;
+    private String algoritmo;
+    private String dist;
+    private Double numCanciones;
+    private String cancionSelec;
     public ImplementacionVista(Stage stage) {
         this.stage = stage;
     }
@@ -43,17 +49,17 @@ public  class ImplementacionVista{
 
     public void creaGUI() throws IOException {
         Label recomendationTitle = new Label("Recommendation Type");
-        recomendationTitle.setFont(Font.font("System", FontWeight.LIGHT,15));
+        recomendationTitle.setFont(font("System", FontWeight.LIGHT,15));
         recomendationTitle.setPadding(new Insets(0, 0, 5, 5));
 
         //ALGORITMO
         ToggleGroup grupo = new ToggleGroup();
         RadioButton feat = new RadioButton("Recommend based on song features");
         feat.setToggleGroup(grupo);
-        feat.setOnAction(actionEvent -> controlador.KNN());
+        feat.setOnAction(actionEvent -> this.algoritmo = "KNN");
         RadioButton gen = new RadioButton("Recommend based on guessed genre");
         gen.setToggleGroup(grupo);
-        gen.setOnAction(actionEvent -> controlador.KMeans());
+        gen.setOnAction(actionEvent -> this.algoritmo = "Kmeans");
         VBox recomBox = new VBox(recomendationTitle,feat,gen);
         recomBox.setPadding(new Insets(0,10,10,10));
 
@@ -64,15 +70,15 @@ public  class ImplementacionVista{
 
         //DISTANCIA
         Label distTitle = new Label("Distance Type");
-        distTitle.setFont(Font.font("System", FontWeight.LIGHT,15));
+        distTitle.setFont(font("System", FontWeight.LIGHT,15));
         distTitle.setPadding(new Insets(5, 0, 5, 5));
 
         ToggleGroup grupDist = new ToggleGroup();
         RadioButton eu = new RadioButton("Euclidean");
         eu.setToggleGroup(grupDist);
-        eu.setOnAction(actionEvent -> controlador.euclidean());
+        eu.setOnAction(actionEvent -> this.dist = "euclidean");
         RadioButton man = new RadioButton("Manhattan");
-        eu.setOnAction(actionEvent -> controlador.manhattan());
+        man.setOnAction(actionEvent -> this.dist = "manhattan");
         man.setToggleGroup(grupDist);
 
         VBox distBox = new VBox(distTitle, eu, man);
@@ -86,7 +92,7 @@ public  class ImplementacionVista{
 
         //LISTA CANCIONES
         Label songTitles = new Label("Song Titles");
-        songTitles.setFont(Font.font("System", FontWeight.LIGHT,18));
+        songTitles.setFont(font("System", FontWeight.LIGHT,18));
 
         String separator = System.getProperty( "file.separator" );
         ObservableList<String> canciones = readNames("src"+separator+"test"+separator+"songs_files"+separator+"songs_test_names.csv");
@@ -113,8 +119,9 @@ public  class ImplementacionVista{
         listaCanciones.setOnMouseClicked(event -> {
             botonRecom.setText("Recommend on "+ listaCanciones.getSelectionModel().getSelectedItems().get(0) + "...");
         });
+        this.cancionSelec = listaCanciones.getSelectionModel().getSelectedItems().get(0);
         botonRecom.setOnAction(actionEvent -> creaGUI2());
-        //botonRecom.setOnAction(actionEvent -> controlador.recomendar());
+        botonRecom.setOnAction(actionEvent -> controlador.recomendar());
         VBox vboxFinal = new VBox(recomBox, distBox, songBox, hBox);
 
 
@@ -135,14 +142,14 @@ public  class ImplementacionVista{
         Spinner<Double> spinner = new Spinner<>();
         SpinnerValueFactory<Double> valueFactory = new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 100, 0);
         spinner.setValueFactory(valueFactory);
-        Double numrecs = spinner.getValue();
+        numCanciones = spinner.getValue();
 
         //LISTA
         Label suggestionLabel = new Label("If you liked " + listaCanciones.getSelectionModel().getSelectedItems().get(0) + " you might like: ");
         recommendationsLabel.setPadding(new Insets(10));
 
         ListView<String> listView = new ListView<>();
-        listView.getItems().addAll("Tonight", "For the Last Time", "Crazy", "Pay Me");
+        listView.getItems().addAll(modelo.obtenerCanciones());
 
         Button closeButton = new Button("Close");
         closeButton.setOnAction(e -> gui2.close());
@@ -180,6 +187,25 @@ public  class ImplementacionVista{
         return listaObservable;
     }
 
+    @Override
+    public String getAlgo() {
+        return algoritmo;
+    }
+
+    @Override
+    public String getDist() {
+        return dist;
+    }
+
+    @Override
+    public Double getNumCanc() {
+        return numCanciones;
+    }
+
+    @Override
+    public String getCancionSelec() {
+        return cancionSelec;
+    }
 
 
     // Hay que hacer recomendaciones con un offset, si queremos 5 canciones calculamos
