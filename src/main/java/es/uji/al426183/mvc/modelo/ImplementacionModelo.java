@@ -24,7 +24,7 @@ public class ImplementacionModelo implements InterrogaModelo, CambioModelo{
     private String cancionSelec;
     Map<String, Table> tables = new HashMap<>();
     String sep = System.getProperty("file.separator");
-    String ruta = "src/test/songs_files";
+    String ruta = "src"+sep+"test"+sep+"songs_files";
     Map<String,String> filenames = new HashMap<>();
     CSVLabeledFileReader csv = new CSVLabeledFileReader();
     List<String> recommended_items;

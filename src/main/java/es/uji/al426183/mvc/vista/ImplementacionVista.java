@@ -1,5 +1,6 @@
 package es.uji.al426183.mvc.vista;
 
+import es.uji.al426183.algorithm.KMayorQueNException;
 import es.uji.al426183.mvc.controlador.Controlador;
 import es.uji.al426183.mvc.modelo.InterrogaModelo;
 import javafx.collections.FXCollections;
@@ -47,7 +48,7 @@ public  class ImplementacionVista implements InterrogaVista{
         this.controlador = controlador;
     }
 
-    public void creaGUI() throws IOException {
+    public void creaGUI() throws IOException, KMayorQueNException {
         Label recomendationTitle = new Label("Recommendation Type");
         recomendationTitle.setFont(font("System", FontWeight.LIGHT,15));
         recomendationTitle.setPadding(new Insets(0, 0, 5, 5));
@@ -98,7 +99,11 @@ public  class ImplementacionVista implements InterrogaVista{
         ObservableList<String> canciones = readNames("src"+separator+"test"+separator+"songs_files"+separator+"songs_test_names.csv");
         listaCanciones = new ListView<>(canciones);
         listaCanciones.setOnMouseClicked(event ->{ if (event.getClickCount() == 2) {
-            controlador.recomendar();
+            try {
+                controlador.recomendar();
+            } catch (KMayorQueNException | IOException e) {
+                throw new RuntimeException(e);
+            }
             creaGUI2();
         }
         });
@@ -117,11 +122,18 @@ public  class ImplementacionVista implements InterrogaVista{
         HBox hBox = new HBox(botonRecom);
         hBox.setPadding(new Insets(0, 10, 30, 10));
         listaCanciones.setOnMouseClicked(event -> {
-            botonRecom.setText("Recommend on "+ listaCanciones.getSelectionModel().getSelectedItems().get(0) + "...");
+            this.cancionSelec = listaCanciones.getSelectionModel().getSelectedItems().get(0);
+            botonRecom.setText("Recommend on "+ cancionSelec + "...");
         });
-        this.cancionSelec = listaCanciones.getSelectionModel().getSelectedItems().get(0);
+
         botonRecom.setOnAction(actionEvent -> creaGUI2());
-        botonRecom.setOnAction(actionEvent -> controlador.recomendar());
+        botonRecom.setOnAction(actionEvent -> {
+            try {
+                controlador.recomendar();
+            } catch (KMayorQueNException | IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
         VBox vboxFinal = new VBox(recomBox, distBox, songBox, hBox);
 
 
