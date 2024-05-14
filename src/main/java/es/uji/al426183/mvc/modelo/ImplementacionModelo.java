@@ -24,8 +24,6 @@ public class ImplementacionModelo implements InterrogaModelo, CambioModelo{
     private Double numCanciones;
     private String cancionSelec;
     Map<String, Table> tables = new HashMap<>();
-    String sep = System.getProperty("file.separator");
-    String ruta = "src"+sep+"test"+sep+"songs_files";
     Map<String,String> filenames = new HashMap<>();
     CSVLabeledFileReader csv = new CSVLabeledFileReader();
     Map<String, RecSys> mapa = new HashMap<>();
@@ -57,6 +55,9 @@ public class ImplementacionModelo implements InterrogaModelo, CambioModelo{
 
 
     private void run() throws KMayorQueNException, IOException {
+        String sep = System.getProperty("file.separator");
+        String ruta = "src"+sep+"test"+sep+"songs_files";
+
         if (this.algoritmo.equals("KNN")) {
             if (this.distancia.equals("euclidean"))
                 this.recsys = new RecSys(new KNN(new EuclideanDistance()));
@@ -69,7 +70,6 @@ public class ImplementacionModelo implements InterrogaModelo, CambioModelo{
             tables.put("train", csv.readTableFromSource(filenames.get("knn" + "train")));
             tables.put("test", csv.readTableFromSource(filenames.get("knn" + "test")));
         }
-
 
         else {
             if (this.distancia.equals("euclidean"))
