@@ -10,5 +10,5 @@ public interface CambioModelo {
     void setNumCanciones(Double num);
     void setCancionSelec(String cancion);
     void agrandarLista(Double valor);
-    void run() throws IOException, KMayorQueNException;
+    void existeYa() throws KMayorQueNException, IOException ;
 }

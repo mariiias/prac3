@@ -54,9 +54,8 @@ public class ImplementacionModelo implements InterrogaModelo, CambioModelo{
         this.cancionSelec = cancion;
     }
 
-    @Override
-    public void run() throws KMayorQueNException, IOException {
 
+    private void run() throws KMayorQueNException, IOException {
         if (this.algoritmo.equals("KNN")) {
             if (this.distancia.equals("euclidean"))
                 this.recsys = new RecSys(new KNN(new EuclideanDistance()));
@@ -88,6 +87,8 @@ public class ImplementacionModelo implements InterrogaModelo, CambioModelo{
         this.recsys.train(tables.get("train"));
         this.recsys.run(tables.get("test"), names);
 
+        mapa.put(algoritmo+distancia, recsys);
+
         obtenerCanciones();
     }
 
@@ -102,6 +103,16 @@ public class ImplementacionModelo implements InterrogaModelo, CambioModelo{
     public void agrandarLista(Double valor) {
         this.numCanciones=valor;
         vista.cambioLista();
+    }
+
+    @Override
+    public void existeYa() throws KMayorQueNException, IOException {
+        if (mapa.containsKey(algoritmo+distancia)){
+            this.recsys=mapa.get(this.algoritmo+this.distancia);
+        }
+        else {
+            run();
+        }
     }
 
     private List<String> readNames(String fileOfItemNames) throws IOException {

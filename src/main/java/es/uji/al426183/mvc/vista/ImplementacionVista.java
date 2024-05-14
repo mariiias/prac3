@@ -100,15 +100,7 @@ public  class ImplementacionVista implements InterrogaVista, InformaVista{
         String separator = System.getProperty( "file.separator" );
         ObservableList<String> canciones = readNames("src"+separator+"test"+separator+"songs_files"+separator+"songs_test_names.csv");
         listaCanciones = new ListView<>(canciones);
-        listaCanciones.setOnMouseClicked(event ->{ if (event.getClickCount() == 2) {
-            try {
-                controlador.recomendar();
-            } catch (KMayorQueNException | IOException e) {
-                throw new RuntimeException(e);
-            }
-            creaGUI2();
-        }
-        });
+
         VBox songBox = new VBox(songTitles, listaCanciones);
         songBox.setPadding(new Insets(0, 10, 10,10));
 
@@ -123,9 +115,17 @@ public  class ImplementacionVista implements InterrogaVista, InformaVista{
         botonRecom.setDisable(true);
         HBox hBox = new HBox(botonRecom);
         hBox.setPadding(new Insets(0, 10, 30, 10));
-        listaCanciones.setOnMouseClicked(event -> {
+        listaCanciones.setOnMouseClicked(event -> {if (event.getClickCount() == 2 && algoritmoSeleccionado && distanciaSeleccionada) {
+            try {
+                controlador.recomendar();
+            } catch (KMayorQueNException | IOException e) {
+                throw new RuntimeException(e);
+            }
+            creaGUI2();}
+            else {
             this.cancionSelec = listaCanciones.getSelectionModel().getSelectedItems().get(0);
             botonRecom.setText("Recommend on "+ cancionSelec + "...");
+            }
         });
 
         botonRecom.setOnAction(actionEvent -> {
@@ -204,7 +204,7 @@ public  class ImplementacionVista implements InterrogaVista, InformaVista{
         List<String> names = new ArrayList<>();
 
         while ((line = br.readLine()) != null) {
-            names.add(line);
+            if (!names.contains(line))names.add(line);
         }
         br.close();
         ObservableList<String> listaObservable = FXCollections.observableArrayList(names);
