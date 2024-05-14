@@ -23,7 +23,7 @@ import java.util.List;
 import static javafx.scene.text.Font.font;
 
 //Tiene que implementar InformaVista e InterrogaVista pero para probarlo lo he quetado porque no he implementado los metodos
-public  class ImplementacionVista implements InterrogaVista{
+public  class ImplementacionVista implements InterrogaVista, InformaVista{
     private final Stage stage;
     private Controlador controlador;
     private InterrogaModelo modelo;
@@ -34,8 +34,10 @@ public  class ImplementacionVista implements InterrogaVista{
     private Button botonRecom;
     private String algoritmo;
     private String dist;
-    private Double numCanciones;
+    private Double numCanciones = 5.0;
     private String cancionSelec;
+    private List<String> listView;
+    private ListView<String> sublistView;
     public ImplementacionVista(Stage stage) {
         this.stage = stage;
     }
@@ -126,13 +128,13 @@ public  class ImplementacionVista implements InterrogaVista{
             botonRecom.setText("Recommend on "+ cancionSelec + "...");
         });
 
-        botonRecom.setOnAction(actionEvent -> creaGUI2());
         botonRecom.setOnAction(actionEvent -> {
-            try {
-                controlador.recomendar();
-            } catch (KMayorQueNException | IOException e) {
-                throw new RuntimeException(e);
-            }
+                try {
+                    controlador.recomendar();
+                } catch (KMayorQueNException | IOException e) {
+                    throw new RuntimeException(e);
+                }
+                creaGUI2();
         });
         VBox vboxFinal = new VBox(recomBox, distBox, songBox, hBox);
 
@@ -147,28 +149,38 @@ public  class ImplementacionVista implements InterrogaVista{
         Stage gui2 = new Stage();
         gui2.setTitle("Recommended Titles");
 
-        Label recommendationsLabel = new Label("Number of recommendations: ");
-        recommendationsLabel.setPadding(new Insets(10));
+        Label recommendationsLabel = new Label("Number of recommendations:");
+        recommendationsLabel.setFont(new Font(10));
 
         //contador
         Spinner<Double> spinner = new Spinner<>();
-        SpinnerValueFactory<Double> valueFactory = new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 100, 0);
+        SpinnerValueFactory<Double> valueFactory = new SpinnerValueFactory.DoubleSpinnerValueFactory(1, 100, 5);
         spinner.setValueFactory(valueFactory);
+
+
         numCanciones = spinner.getValue();
 
         //LISTA
-        Label suggestionLabel = new Label("If you liked " + listaCanciones.getSelectionModel().getSelectedItems().get(0) + " you might like: ");
-        recommendationsLabel.setPadding(new Insets(10));
+        Label suggestionLabel = new Label("If you liked " + cancionSelec + " you might like: ");
+        recommendationsLabel.setPadding(new Insets(12));
+        listView = modelo.obtenerCanciones();
+        sublistView = new ListView<>(FXCollections.observableArrayList(listView.subList(0, numCanciones.intValue())));
+        nuevaLista(numCanciones);
 
-        ListView<String> listView = new ListView<>();
-        listView.getItems().addAll(modelo.obtenerCanciones());
+        spinner.valueProperty().addListener((obs, oldValue, newValue) -> {
+            if (numCanciones*3<=newValue) {
+                numCanciones = newValue;
+                controlador.agrandarLista(newValue);
+            }
+            else nuevaLista(newValue);
+        });
 
         Button closeButton = new Button("Close");
         closeButton.setOnAction(e -> gui2.close());
 
-        HBox spinnerBox = new HBox(10, recommendationsLabel, spinner);
+        HBox spinnerBox = new HBox(recommendationsLabel, spinner);
 
-        VBox mainLayout = new VBox(10,spinnerBox, suggestionLabel, listView, closeButton);
+        VBox mainLayout = new VBox(10,spinnerBox, suggestionLabel, sublistView, closeButton);
         mainLayout.setPadding(new Insets(20, 20, 20, 20));
 
         Scene scene = new Scene(mainLayout, 350, 300);
@@ -199,6 +211,9 @@ public  class ImplementacionVista implements InterrogaVista{
         return listaObservable;
     }
 
+    private void nuevaLista(Double nuevoValor){
+        sublistView.setItems(FXCollections.observableArrayList(listView.subList(0, nuevoValor.intValue())));
+    }
     @Override
     public String getAlgo() {
         return algoritmo;
@@ -219,7 +234,10 @@ public  class ImplementacionVista implements InterrogaVista{
         return cancionSelec;
     }
 
-
+    @Override
+    public void cambioLista() {
+        listView = modelo.obtenerCanciones();
+    }
     // Hay que hacer recomendaciones con un offset, si queremos 5 canciones calculamos
     // 10 asi si el usuario incrementa el numero de canciones no se tiene que volver a llamar a recomendar
 }

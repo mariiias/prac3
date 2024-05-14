@@ -3,6 +3,7 @@ package es.uji.al426183.mvc.modelo;
 import es.uji.al426183.algorithm.*;
 import es.uji.al426183.almacenar.table.Table;
 import es.uji.al426183.lectura.CSVLabeledFileReader;
+import es.uji.al426183.mvc.vista.ImplementacionVista;
 import es.uji.al426183.mvc.vista.InformaVista;
 import es.uji.al426183.mvc.vista.InterrogaVista;
 import javafx.collections.FXCollections;
@@ -90,10 +91,17 @@ public class ImplementacionModelo implements InterrogaModelo, CambioModelo{
         obtenerCanciones();
     }
 
+
     @Override
-    public ObservableList<String> obtenerCanciones(){
-        recommended_items = this.recsys.recommend(cancionSelec, numCanciones.intValue());
-        return (ObservableList<String>) recommended_items;
+    public List<String> obtenerCanciones(){
+        recommended_items = this.recsys.recommend(cancionSelec, numCanciones.intValue()*3);
+        return recommended_items;
+    }
+
+    @Override
+    public void agrandarLista(Double valor) {
+        this.numCanciones=valor;
+        vista.cambioLista();
     }
 
     private List<String> readNames(String fileOfItemNames) throws IOException {

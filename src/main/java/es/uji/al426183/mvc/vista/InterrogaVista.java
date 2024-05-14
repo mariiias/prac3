@@ -4,6 +4,5 @@ public interface InterrogaVista {
     String getAlgo();
     String getDist();
     Double getNumCanc();
-
     String getCancionSelec();
 }

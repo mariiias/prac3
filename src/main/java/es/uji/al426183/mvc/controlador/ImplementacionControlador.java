@@ -19,6 +19,12 @@ public class ImplementacionControlador implements Controlador{
         this.modelo = modelo;
     }
 
+
+    @Override
+    public void agrandarLista(Double valor) {
+        modelo.agrandarLista(valor);
+    }
+
     @Override
     public void recomendar() throws KMayorQueNException, IOException {
         String algo = vista.getAlgo();

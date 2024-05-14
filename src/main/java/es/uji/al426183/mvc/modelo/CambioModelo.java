@@ -9,5 +9,6 @@ public interface CambioModelo {
     void setDistancia(String dist);
     void setNumCanciones(Double num);
     void setCancionSelec(String cancion);
+    void agrandarLista(Double valor);
     void run() throws IOException, KMayorQueNException;
 }

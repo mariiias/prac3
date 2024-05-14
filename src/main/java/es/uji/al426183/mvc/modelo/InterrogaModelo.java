@@ -1,7 +1,7 @@
 package es.uji.al426183.mvc.modelo;
 
 import javafx.collections.ObservableList;
-
+import java.util.*;
 public interface InterrogaModelo {
-    ObservableList<String> obtenerCanciones();
+    List<String> obtenerCanciones();
 }
