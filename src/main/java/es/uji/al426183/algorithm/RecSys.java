@@ -52,17 +52,12 @@ public class RecSys {
         for (int i = 0; i < estimacion.size(); i++) {
             if (i != indice && etiqueta.equals(estimacion.get(i)))
                 numeroRecomendaciones.add(i);
+            if (numeroRecomendaciones.size() >= numRecomendations)
+                break;
         }
-        int x = 0;
-        while (x < numRecomendations) {
-            for (int y = 0; y < numeroRecomendaciones.size(); y++) {
-
-                int val = numeroRecomendaciones.get(y);
-                if (!recomendaciones.contains(testItemNames.get(val))) {
-                    recomendaciones.add(testItemNames.get(val));
-                    x++;
-                }
-            }
+        for (int x = 0; x < numeroRecomendaciones.size(); x++) {
+            int val = numeroRecomendaciones.get(x);
+            recomendaciones.add(testItemNames.get(val));
         }
         return recomendaciones;
     }

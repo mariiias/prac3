@@ -114,6 +114,7 @@ public class ImplementacionModelo implements InterrogaModelo, CambioModelo{
         else {
             run();
         }
+        obtenerCanciones();
     }
 
     private List<String> readNames(String fileOfItemNames) throws IOException {
