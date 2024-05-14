@@ -28,6 +28,7 @@ public class ImplementacionModelo implements InterrogaModelo, CambioModelo{
     String ruta = "src"+sep+"test"+sep+"songs_files";
     Map<String,String> filenames = new HashMap<>();
     CSVLabeledFileReader csv = new CSVLabeledFileReader();
+    Map<String, RecSys> mapa = new HashMap<>();
     List<String> recommended_items;
     RecSys recsys;
 
@@ -69,6 +70,7 @@ public class ImplementacionModelo implements InterrogaModelo, CambioModelo{
             tables.put("test", csv.readTableFromSource(filenames.get("knn" + "test")));
         }
 
+
         else {
             if (this.distancia.equals("euclidean"))
                 this.recsys = new RecSys(new Kmeans(15, 200, 4321, new ManhattanDistance()));
@@ -89,7 +91,6 @@ public class ImplementacionModelo implements InterrogaModelo, CambioModelo{
 
         mapa.put(algoritmo+distancia, recsys);
 
-        obtenerCanciones();
     }
 
 

@@ -36,6 +36,6 @@ public class ImplementacionControlador implements Controlador{
         modelo.setDistancia(dist);
         modelo.setNumCanciones(numCanc);
         modelo.setCancionSelec(cancionSelec);
-        modelo.run();
+        modelo.existeYa();
     }
 }
