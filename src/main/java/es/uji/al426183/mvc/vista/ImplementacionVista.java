@@ -8,6 +8,7 @@ import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
@@ -50,7 +51,7 @@ public  class ImplementacionVista implements InterrogaVista, InformaVista{
         this.controlador = controlador;
     }
 
-    public void creaGUI() throws IOException, KMayorQueNException {
+    public void creaGUI() throws IOException {
         Label recomendationTitle = new Label("Recommendation Type");
         recomendationTitle.setFont(font("System", FontWeight.LIGHT,15));
         recomendationTitle.setPadding(new Insets(0, 0, 5, 5));
@@ -60,11 +61,16 @@ public  class ImplementacionVista implements InterrogaVista, InformaVista{
         RadioButton feat = new RadioButton("Recommend based on song features");
         feat.setToggleGroup(grupo);
         feat.setOnAction(actionEvent -> this.algoritmo = "KNN");
+
+        //grupo.selectToggle(feat);
+        //feat.fire();
+
         RadioButton gen = new RadioButton("Recommend based on guessed genre");
         gen.setToggleGroup(grupo);
         gen.setOnAction(actionEvent -> this.algoritmo = "Kmeans");
         VBox recomBox = new VBox(recomendationTitle,feat,gen);
         recomBox.setPadding(new Insets(0,10,10,10));
+
 
         grupo.selectedToggleProperty().addListener((obs, oldVal, newVal) -> {
             algoritmoSeleccionado = newVal != null;
@@ -79,10 +85,13 @@ public  class ImplementacionVista implements InterrogaVista, InformaVista{
         ToggleGroup grupDist = new ToggleGroup();
         RadioButton eu = new RadioButton("Euclidean");
         eu.setToggleGroup(grupDist);
+
         eu.setOnAction(actionEvent -> this.dist = "euclidean");
+
         RadioButton man = new RadioButton("Manhattan");
         man.setOnAction(actionEvent -> this.dist = "manhattan");
         man.setToggleGroup(grupDist);
+
 
         VBox distBox = new VBox(distTitle, eu, man);
         distBox.setPadding(new Insets(0,10,10,10));
@@ -115,6 +124,8 @@ public  class ImplementacionVista implements InterrogaVista, InformaVista{
         botonRecom.setDisable(true);
         HBox hBox = new HBox(botonRecom);
         hBox.setPadding(new Insets(0, 10, 30, 10));
+        listaCanciones.setTooltip(new Tooltip("Double click for recommendations based on this song."));
+
         listaCanciones.setOnMouseClicked(event -> {if (event.getClickCount() == 2 && algoritmoSeleccionado && distanciaSeleccionada) {
             try {
                 controlador.recomendar();
@@ -147,14 +158,18 @@ public  class ImplementacionVista implements InterrogaVista, InformaVista{
 
     public void creaGUI2() {
         Stage gui2 = new Stage();
+        gui2.setX(800);
+        gui2.setY(100);
+
         gui2.setTitle("Recommended Titles");
 
         Label recommendationsLabel = new Label("Number of recommendations:");
-        recommendationsLabel.setFont(new Font(10));
+        recommendationsLabel.setMaxWidth(100); // Establecer el ancho máximo al máximo posible
+        recommendationsLabel.setWrapText(true);
 
         //contador
         Spinner<Double> spinner = new Spinner<>();
-        SpinnerValueFactory<Double> valueFactory = new SpinnerValueFactory.DoubleSpinnerValueFactory(1, 100, 5);
+        SpinnerValueFactory<Double> valueFactory = new SpinnerValueFactory.DoubleSpinnerValueFactory(1, Double.MAX_VALUE, 5);
         spinner.setValueFactory(valueFactory);
 
 
@@ -162,30 +177,59 @@ public  class ImplementacionVista implements InterrogaVista, InformaVista{
 
         //LISTA
         Label suggestionLabel = new Label("If you liked " + cancionSelec + " you might like: ");
-        recommendationsLabel.setPadding(new Insets(12));
         listView = modelo.obtenerCanciones();
         sublistView = new ListView<>(FXCollections.observableArrayList(listView.subList(0, numCanciones.intValue())));
         nuevaLista(numCanciones);
 
+        //Aqui volvemos a generar la lista si el numero de canciones pedidas por el usuario es mayor a la longitud de la lista que ya tenemos generada
         spinner.valueProperty().addListener((obs, oldValue, newValue) -> {
             if (numCanciones*3<=newValue) {
                 numCanciones = newValue;
                 controlador.agrandarLista(newValue);
+                if (listView.size() < newValue*3) {
+                    SpinnerValueFactory.DoubleSpinnerValueFactory val = (SpinnerValueFactory.DoubleSpinnerValueFactory) spinner.getValueFactory();
+                    val.setMax(listView.size());
+                }
             }
-            else nuevaLista(newValue);
+            else {
+                nuevaLista(newValue);
+                if (listView.size() == spinner.getValue())
+                    creaGUIError();
+            }
         });
 
         Button closeButton = new Button("Close");
         closeButton.setOnAction(e -> gui2.close());
 
+
         HBox spinnerBox = new HBox(recommendationsLabel, spinner);
 
         VBox mainLayout = new VBox(10,spinnerBox, suggestionLabel, sublistView, closeButton);
-        mainLayout.setPadding(new Insets(20, 20, 20, 20));
+        mainLayout.setPadding(new Insets(20));
 
         Scene scene = new Scene(mainLayout, 350, 300);
         gui2.setScene(scene);
         gui2.show();
+    }
+    private void creaGUIError() {
+        Stage gui3 = new Stage();
+        gui3.setX(700);
+        gui3.setY(200);
+        Label mensaje = new Label("There are not enough recommendations.");
+        mensaje.setFont(Font.font(13));
+        BorderPane main = new BorderPane();
+        main.setPadding(new Insets(10));
+
+        main.setTop(mensaje);
+        gui3.setTitle("Error");
+
+        Button closeButton = new Button("Close");
+        closeButton.setOnAction(e -> gui3.close());
+        main.setBottom(closeButton);
+
+        Scene scene = new Scene(main, 300, 100);
+        gui3.setScene(scene);
+        gui3.show();
     }
 
     private void verificarEstado() {
@@ -238,6 +282,4 @@ public  class ImplementacionVista implements InterrogaVista, InformaVista{
     public void cambioLista() {
         listView = modelo.obtenerCanciones();
     }
-    // Hay que hacer recomendaciones con un offset, si queremos 5 canciones calculamos
-    // 10 asi si el usuario incrementa el numero de canciones no se tiene que volver a llamar a recomendar
 }

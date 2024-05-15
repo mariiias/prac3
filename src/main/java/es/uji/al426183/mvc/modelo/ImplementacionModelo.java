@@ -103,6 +103,7 @@ public class ImplementacionModelo implements InterrogaModelo, CambioModelo{
     @Override
     public void agrandarLista(Double valor) {
         this.numCanciones=valor;
+
         vista.cambioLista();
     }
 
