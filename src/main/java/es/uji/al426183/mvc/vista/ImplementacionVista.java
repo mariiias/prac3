@@ -20,6 +20,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static javafx.scene.text.Font.font;
 
@@ -154,6 +155,19 @@ public  class ImplementacionVista implements InterrogaVista, InformaVista{
         stage.setTitle("Song Recommender");
         stage.setScene(scene);
         stage.show();
+
+        stage.setOnCloseRequest(event -> {
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("Confirm Exit");
+            alert.setHeaderText("Close program");
+            alert.setContentText("Are you sure you want to exit? ");
+
+            Optional<ButtonType> result = alert.showAndWait();
+            if (result.isPresent() && result.get() == ButtonType.OK)
+                System.exit(0);
+            else
+                event.consume();
+        });
     }
 
     public void creaGUI2() {
@@ -193,8 +207,9 @@ public  class ImplementacionVista implements InterrogaVista, InformaVista{
             }
             else {
                 nuevaLista(newValue);
-                if (listView.size() == spinner.getValue())
+                if (listView.size() == spinner.getValue()) {
                     creaGUIError();
+                }
             }
         });
 
@@ -239,6 +254,8 @@ public  class ImplementacionVista implements InterrogaVista, InformaVista{
             botonRecom.setDisable(true);
         }
     }
+
+
 
 
 
