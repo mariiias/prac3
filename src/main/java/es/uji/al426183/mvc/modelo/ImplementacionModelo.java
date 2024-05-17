@@ -90,7 +90,6 @@ public class ImplementacionModelo implements InterrogaModelo, CambioModelo{
         this.recsys.run(tables.get("test"), names);
 
         mapa.put(algoritmo+distancia, recsys);
-
     }
 
 

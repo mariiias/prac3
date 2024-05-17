@@ -5,10 +5,12 @@ import es.uji.al426183.mvc.controlador.Controlador;
 import es.uji.al426183.mvc.modelo.InterrogaModelo;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
@@ -21,10 +23,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import javafx.scene.image.Image;
+
 
 import static javafx.scene.text.Font.font;
 
-//Tiene que implementar InformaVista e InterrogaVista pero para probarlo lo he quetado porque no he implementado los metodos
 public  class ImplementacionVista implements InterrogaVista, InformaVista{
     private final Stage stage;
     private Controlador controlador;
@@ -32,8 +35,8 @@ public  class ImplementacionVista implements InterrogaVista, InformaVista{
     private ListView<String> listaCanciones;
     private boolean cancionSeleccionada = false;
     private Button botonRecom;
-    private String algoritmo;
-    private String dist;
+    private String algoritmo = "KNN";
+    private String dist =  "Euclidean";
     private Double numCanciones = 5.0;
     private String cancionSelec;
     private List<String> listView;
@@ -51,9 +54,11 @@ public  class ImplementacionVista implements InterrogaVista, InformaVista{
     }
 
     public void creaGUI() throws IOException {
+
         Label recomendationTitle = new Label("Recommendation Type");
         recomendationTitle.setFont(font("System", FontWeight.LIGHT,15));
-        recomendationTitle.setPadding(new Insets(0, 0, 5, 5));
+        recomendationTitle.setPadding(new Insets(5));
+
 
         //ALGORITMO
         ToggleGroup grupo = new ToggleGroup();
@@ -68,16 +73,18 @@ public  class ImplementacionVista implements InterrogaVista, InformaVista{
         gen.setToggleGroup(grupo);
         gen.setOnAction(actionEvent -> this.algoritmo = "Kmeans");
         VBox recomBox = new VBox(recomendationTitle,feat,gen);
-        recomBox.setPadding(new Insets(0,10,10,10));
+        recomBox.setPadding(new Insets(10));
 
         //DISTANCIA
         Label distTitle = new Label("Distance Type");
         distTitle.setFont(font("System", FontWeight.LIGHT,15));
-        distTitle.setPadding(new Insets(5, 0, 5, 5));
+        distTitle.setPadding(new Insets(5));
 
         ToggleGroup grupDist = new ToggleGroup();
         RadioButton eu = new RadioButton("Euclidean");
+
         eu.setToggleGroup(grupDist);
+        eu.fire();
 
         eu.setOnAction(actionEvent -> this.dist = "euclidean");
 
@@ -85,11 +92,9 @@ public  class ImplementacionVista implements InterrogaVista, InformaVista{
         man.setOnAction(actionEvent -> this.dist = "manhattan");
         man.setToggleGroup(grupDist);
         grupDist.selectToggle(eu);
-        eu.fire();
 
         VBox distBox = new VBox(distTitle, eu, man);
-        distBox.setPadding(new Insets(0,10,10,10));
-
+        distBox.setPadding(new Insets(10));
 
 
         //LISTA CANCIONES
@@ -98,10 +103,24 @@ public  class ImplementacionVista implements InterrogaVista, InformaVista{
 
         String separator = System.getProperty( "file.separator" );
         ObservableList<String> canciones = readNames("src"+separator+"test"+separator+"songs_files"+separator+"songs_test_names.csv");
-        listaCanciones = new ListView<>(canciones);
+        FilteredList<String> filteredCanciones = new FilteredList<>(canciones, s -> true);
 
-        VBox songBox = new VBox(songTitles, listaCanciones);
-        songBox.setPadding(new Insets(0, 10, 10,10));
+        listaCanciones = new ListView<>(filteredCanciones);
+
+        TextField searchField = new TextField();
+        searchField.setPromptText("Buscar canción...");
+        searchField.textProperty().addListener((observable, oldValue, newValue) -> {
+            filteredCanciones.setPredicate(song -> {
+                if (newValue == null || newValue.isEmpty()) {
+                    return true;
+                }
+                String lowerCaseFilter = newValue.toLowerCase();
+                return song.toLowerCase().contains(lowerCaseFilter);
+            });
+        });
+
+        VBox songBox = new VBox(10, songTitles, searchField, listaCanciones);
+        songBox.setPadding(new Insets(10));
 
         listaCanciones.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             cancionSeleccionada = newValue != null;
@@ -138,11 +157,15 @@ public  class ImplementacionVista implements InterrogaVista, InformaVista{
                 creaGUI2();
         });
         VBox vboxFinal = new VBox(recomBox, distBox, songBox, hBox);
+        vboxFinal.setStyle("-fx-background-color: #add8e6;");
 
 
         Scene scene = new Scene(vboxFinal, 250, 600);
         stage.setTitle("Song Recommender");
         stage.setScene(scene);
+
+
+
         stage.show();
 
         stage.setOnCloseRequest(event -> {
@@ -167,19 +190,24 @@ public  class ImplementacionVista implements InterrogaVista, InformaVista{
         gui2.setTitle("Recommended Titles");
 
         Label recommendationsLabel = new Label("Number of recommendations:");
-        recommendationsLabel.setMaxWidth(100); // Establecer el ancho máximo al máximo posible
+        recommendationsLabel.setMaxWidth(400);
         recommendationsLabel.setWrapText(true);
 
         //contador
         Spinner<Double> spinner = new Spinner<>();
         SpinnerValueFactory<Double> valueFactory = new SpinnerValueFactory.DoubleSpinnerValueFactory(1, Double.MAX_VALUE, 5);
         spinner.setValueFactory(valueFactory);
-
+        spinner.setPadding(new Insets(4));
 
         numCanciones = spinner.getValue();
 
+
         //LISTA
         Label suggestionLabel = new Label("If you liked " + cancionSelec + " you might like: ");
+
+        suggestionLabel.setWrapText(true);
+
+
         listView = modelo.obtenerCanciones();
         sublistView = new ListView<>(FXCollections.observableArrayList(listView.subList(0, numCanciones.intValue())));
         nuevaLista(numCanciones);
@@ -206,10 +234,14 @@ public  class ImplementacionVista implements InterrogaVista, InformaVista{
         closeButton.setOnAction(e -> gui2.close());
 
 
-        HBox spinnerBox = new HBox(recommendationsLabel, spinner);
+        GridPane spinnerBox = new GridPane();
+        spinnerBox.add(recommendationsLabel, 0, 0);
+        spinnerBox.add(spinner, 1, 0);
+
 
         VBox mainLayout = new VBox(10,spinnerBox, suggestionLabel, sublistView, closeButton);
         mainLayout.setPadding(new Insets(20));
+        mainLayout.setStyle("-fx-background-color: #add8e6;");
 
         Scene scene = new Scene(mainLayout, 350, 300);
         gui2.setScene(scene);
@@ -223,6 +255,7 @@ public  class ImplementacionVista implements InterrogaVista, InformaVista{
         mensaje.setFont(Font.font(13));
         BorderPane main = new BorderPane();
         main.setPadding(new Insets(10));
+        main.setStyle("-fx-background-color: #add8e6;");
 
         main.setTop(mensaje);
         gui3.setTitle("Error");
