@@ -30,8 +30,6 @@ public  class ImplementacionVista implements InterrogaVista, InformaVista{
     private Controlador controlador;
     private InterrogaModelo modelo;
     private ListView<String> listaCanciones;
-    private boolean algoritmoSeleccionado = false;
-    private boolean distanciaSeleccionada = false;
     private boolean cancionSeleccionada = false;
     private Button botonRecom;
     private String algoritmo;
@@ -63,20 +61,14 @@ public  class ImplementacionVista implements InterrogaVista, InformaVista{
         feat.setToggleGroup(grupo);
         feat.setOnAction(actionEvent -> this.algoritmo = "KNN");
 
-        //grupo.selectToggle(feat);
-        //feat.fire();
+        grupo.selectToggle(feat);
+        feat.fire();
 
         RadioButton gen = new RadioButton("Recommend based on guessed genre");
         gen.setToggleGroup(grupo);
         gen.setOnAction(actionEvent -> this.algoritmo = "Kmeans");
         VBox recomBox = new VBox(recomendationTitle,feat,gen);
         recomBox.setPadding(new Insets(0,10,10,10));
-
-
-        grupo.selectedToggleProperty().addListener((obs, oldVal, newVal) -> {
-            algoritmoSeleccionado = newVal != null;
-            verificarEstado();
-        });
 
         //DISTANCIA
         Label distTitle = new Label("Distance Type");
@@ -92,15 +84,12 @@ public  class ImplementacionVista implements InterrogaVista, InformaVista{
         RadioButton man = new RadioButton("Manhattan");
         man.setOnAction(actionEvent -> this.dist = "manhattan");
         man.setToggleGroup(grupDist);
-
+        grupDist.selectToggle(eu);
+        eu.fire();
 
         VBox distBox = new VBox(distTitle, eu, man);
         distBox.setPadding(new Insets(0,10,10,10));
 
-        grupDist.selectedToggleProperty().addListener((obs, oldVal, newVal) -> {
-            distanciaSeleccionada = newVal != null;
-            verificarEstado();
-        });
 
 
         //LISTA CANCIONES
@@ -127,7 +116,7 @@ public  class ImplementacionVista implements InterrogaVista, InformaVista{
         hBox.setPadding(new Insets(0, 10, 30, 10));
         listaCanciones.setTooltip(new Tooltip("Double click for recommendations based on this song."));
 
-        listaCanciones.setOnMouseClicked(event -> {if (event.getClickCount() == 2 && algoritmoSeleccionado && distanciaSeleccionada) {
+        listaCanciones.setOnMouseClicked(event -> {if (event.getClickCount() == 2) {
             try {
                 controlador.recomendar();
             } catch (KMayorQueNException | IOException e) {
@@ -248,7 +237,7 @@ public  class ImplementacionVista implements InterrogaVista, InformaVista{
     }
 
     private void verificarEstado() {
-        if (algoritmoSeleccionado && distanciaSeleccionada && cancionSeleccionada) {
+        if (cancionSeleccionada) {
             botonRecom.setDisable(false);
         } else {
             botonRecom.setDisable(true);

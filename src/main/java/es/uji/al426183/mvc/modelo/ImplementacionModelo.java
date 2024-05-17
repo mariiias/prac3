@@ -18,9 +18,9 @@ import java.util.List;
 import java.util.Map;
 
 public class ImplementacionModelo implements InterrogaModelo, CambioModelo{
-    private String algoritmo;
+    private String algoritmo = "KNN";
     private InformaVista vista;
-    private String distancia;
+    private String distancia = "Euclidean";
     private Double numCanciones;
     private String cancionSelec;
     Map<String, Table> tables = new HashMap<>();
